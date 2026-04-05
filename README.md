@@ -1,7 +1,3 @@
-Here's the combined, polished overview:
-
----
-
 # 🏥 MedTags — Real-Time Hospital Asset Tracker
 
 MedTags is a full-stack hospital equipment tracking system designed to help healthcare staff monitor, manage, and locate medical assets in real time. Built with BLE tags, ESP32 base stations, a Node.js backend, and a React dashboard, MedTags improves efficiency, reduces equipment loss, and supports better patient care by making critical hospital equipment easier to find when it matters most.
