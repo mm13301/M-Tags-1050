@@ -1,18 +1,30 @@
-# MedTags — Real-Time Hospital Asset Tracker
-
-A full-stack system for tracking medical equipment across hospital floors using BLE (Bluetooth Low Energy) tags, ESP32 base stations, a Node.js backend, and a React dashboard.
+Here's the combined, polished overview:
 
 ---
 
-## Overview
+# 🏥 MedTags — Real-Time Hospital Asset Tracker
 
-Hospital staff often waste significant time searching for equipment like infusion pumps, wheelchairs, and monitoring devices. MedTags solves this by attaching small BLE tags to equipment. Strategically placed ESP32 base stations pick up tag broadcasts, report signal strength to a central server, and the server determines each asset's room in real time. Staff can see every asset's location, battery level, and availability on a live dashboard.
+MedTags is a full-stack hospital equipment tracking system designed to help healthcare staff monitor, manage, and locate medical assets in real time. Built with BLE tags, ESP32 base stations, a Node.js backend, and a React dashboard, MedTags improves efficiency, reduces equipment loss, and supports better patient care by making critical hospital equipment easier to find when it matters most.
 
 ---
 
-## Features
+## 📖 Overview
 
-- **Real-time location tracking** — room-level accuracy via RSSI-based detection with EWMA smoothing and hysteresis
+Hospitals rely on a large number of mobile assets — IV pumps, wheelchairs, monitors, beds, and other medical devices — that are constantly moved between rooms, departments, and storage areas, making them difficult to locate when needed.
+
+MedTags solves this by attaching small BLE tags to equipment. Strategically placed ESP32 base stations pick up tag broadcasts, report signal strength to a central server, and the server determines each asset's room in real time. Staff can see every asset's location, battery level, and availability on a live dashboard — no more searching.
+
+MedTags helps hospitals:
+- View equipment status and location in real time
+- Manage all devices through a single unified dashboard
+- Reduce time wasted searching for misplaced equipment
+- Improve workflow, asset utilization, and staff responsiveness
+
+---
+
+## 🚀 Features
+
+- **Real-time location tracking** — room-level accuracy via RSSI-based detection with EWMA smoothing and hysteresis to prevent flickering near room boundaries
 - **Live floor map** — visual overlay of asset positions per floor
 - **Battery monitoring** — alerts when a tag battery drops below 20%
 - **Missing equipment alerts** — flags assets not seen for an extended period
@@ -24,176 +36,67 @@ Hospital staff often waste significant time searching for equipment like infusio
 
 ---
 
-## System Architecture
+## 🏗️ System Architecture
+
+MedTags uses a distributed architecture combining embedded hardware and a web-based system:
 
 ```
 [nRF52840 BLE Tags]
         |  BLE advertisements (50 ms interval)
         v
-[ESP32 Base Stations]  -- POST /api/tag -->  [Node.js / Express Server :3001]
-                                                      |
-                                              JSON file database
-                                              (medtrack-db.json)
-                                                      |
-                                           WebSocket broadcast
-                                                      |
-                                        [React Frontend :5173]
-                                    (Biomedical / Clinical views)
+[ESP32 Base Stations]  -->  POST /api/tag  -->  [Node.js / Express Server :3001]
+                                                          |
+                                                  JSON file database
+                                                  (medtrack-db.json)
+                                                          |
+                                               WebSocket broadcast
+                                                          |
+                                            [React Frontend :5173]
+                                        (Biomedical / Clinical views)
 ```
+
+### 🔹 BLE Tracker (nRF52840)
+Broadcasts BLE advertisement packets at configurable intervals with a payload containing tag ID, battery level, and status flags. Optimized for low power using sleep cycles and designed to run on coin cell batteries (CR2450).
+
+### 🔹 ESP32 Base Stations
+Continuously scan for BLE advertisements using NimBLE, filter by manufacturer ID, extract payload data, measure RSSI, and POST JSON detection data to the backend over WiFi.
+
+### 🔹 Backend Server (Node.js + Express)
+Processes incoming tag data via a REST API, applies RSSI filtering, moving average smoothing, and hysteresis-based gateway selection to determine the closest room and floor. Persists state to a lightweight JSON database and broadcasts live updates via WebSockets.
+
+### 🔹 Web Dashboard
+Displays real-time asset data over a persistent WebSocket connection, showing location (room/floor), signal strength (RSSI), battery level, and last-seen timestamp. Role-based views serve both biomedical engineers and clinical staff.
 
 ---
 
-## Repository Structure
+## ⚙️ How It Works
 
-```
-Medtrack-main/
-├── Medtrack-main/                        # React frontend (Vite)
-│   ├── src/
-│   │   └── main.jsx                      # App entry point
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-│
-├── Medtrack server/
-│   └── Medtrack-server-main/
-│       └── Medtrack-server-main/
-│           ├── server.js                 # Express + WebSocket server
-│           ├── hospital-asset-tracker.jsx  # Main React component
-│           ├── medtrack-db.json          # JSON database
-│           └── package.json
-│
-├── Final_BaseStation/
-│   └── Final_BaseStation.ino             # ESP32 firmware (BLE scanner + WiFi uploader)
-│
-└── Final_Tracker/
-    └── Final_Tracker.ino                 # nRF52840 firmware (BLE tag + battery monitor)
-```
+1. BLE trackers continuously broadcast signals
+2. ESP32 base stations detect nearby trackers and measure signal strength
+3. Base stations POST detection data to the backend server
+4. Server processes RSSI, applies smoothing and hysteresis, and determines room location
+5. Dashboard updates in real time via WebSocket
 
 ---
 
-## Prerequisites
+## 🧪 Technologies Used
 
-| Tool | Version |
-|------|---------|
-| Node.js | 18+ |
-| npm | 9+ |
-| Arduino IDE | 2.x (for firmware) |
-| ESP32 Arduino core | latest |
-| Adafruit nRF52 Arduino core | latest |
-
----
-
-## Getting Started
-
-### 1. Backend
-
-```bash
-cd "Medtrack server/Medtrack-server-main/Medtrack-server-main"
-npm install
-npm start          # production
-# or
-npm run dev        # development (nodemon auto-reload)
-```
-
-Server starts on **http://localhost:3001** (REST) and **ws://localhost:3001** (WebSocket).
-
-### 2. Frontend
-
-```bash
-cd Medtrack-main
-npm install
-npm run dev        # dev server with hot reload → http://localhost:5173
-npm run build      # production build
-npm run preview    # preview production build
-```
-
-The Vite dev server is bound to `0.0.0.0`, so it is reachable from any device on the same LAN.
-
-### 3. Demo Login
-
-| Role | Username | Password |
-|------|----------|----------|
-| Biomedical Engineer | `biomed` | `biomed123` |
-| Clinical Staff | `nurse` | `nurse123` |
+| Layer | Technology |
+|-------|------------|
+| Frontend | React (Vite), WebSockets |
+| Backend | Node.js, Express |
+| Real-time | WebSockets |
+| Hardware | ESP32, nRF52840 (BLE) |
+| Networking | HTTP REST API |
+| Data Storage | JSON file database |
 
 ---
 
-## Hardware Setup
+## 🔬 Technical Details
 
-### BLE Tag (nRF52840 — `Final_Tracker.ino`)
+**BLE Communication** — Uses advertisement packets (no pairing required) for low latency and power efficiency.
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `TAG_ID` | `0xA1B2` | Unique 2-byte tag identifier |
-| `COMPANY_ID` | `0x1234` | Manufacturer data filter |
-| `ADV_INTERVAL_MS` | `50` | BLE advertising interval (ms) |
-| `ADV_BURST_SEC` | `20` | Broadcast window duration (s) |
-| `SLEEP_SEC` | `5` | Sleep between bursts (s) |
-
-Battery voltage is read from the internal ADC and mapped to a percentage using a LiPo discharge curve (3.2 V – 4.2 V). The percentage is encoded in the BLE manufacturer data payload.
-
-Flash `Final_Tracker.ino` to each nRF52840 tag via Arduino IDE with the Adafruit nRF52 core installed. Set a unique `TAG_ID` per tag before flashing.
-
-### Base Station (ESP32 — `Final_BaseStation.ino`)
-
-Each ESP32 continuously scans for BLE advertisements matching `COMPANY_ID` and POSTs detection data (tag ID, RSSI, battery, flags) to the server over WiFi.
-
-Before flashing, edit these values in the sketch:
-
-```cpp
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* SERVER_URL    = "http://<SERVER_IP>:3001/api/tag";
-const String GATEWAY_ID   = "Room1";   // unique per station
-const String FLOOR        = "1F";      // floor this station covers
-```
-
-Deploy one base station per room or coverage zone. Assign a distinct `GATEWAY_ID` and matching `FLOOR` to each unit.
-
----
-
-## API Reference
-
-### `POST /api/tag`
-Base station submits a tag detection.
-```json
-{
-  "tag_id": "A1B2",
-  "gateway_id": "Room2",
-  "rssi": -62,
-  "battery": 85,
-  "flags": 0
-}
-```
-
-### `GET /api/assets`
-Returns all tracked assets.
-
-### `PUT /api/assets/:tag_id`
-Update asset metadata (name, type, department, floor, room, status).
-
-### `GET /api/assets/:tag_id/history`
-Returns location history for a single asset.
-
-### `DELETE /api/assets/:tag_id`
-Remove an asset from tracking.
-
-### `GET /api/health`
-Server health check.
-
-### WebSocket events
-
-| Event | Direction | Payload |
-|-------|-----------|---------|
-| `init` | Server → Client | Full asset list on connection |
-| `tag_update` | Server → Client | Updated asset object |
-| `tag_deleted` | Server → Client | `{ tag_id }` |
-
----
-
-## Location Algorithm
-
-The server uses an RSSI-based room detection algorithm with the following tunable parameters in `server.js`:
+**RSSI-Based Positioning** — Location is estimated by comparing signal strength across multiple base stations. Key tunable parameters:
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
@@ -203,40 +106,119 @@ The server uses an RSSI-based room detection algorithm with the following tunabl
 | `STALE_MS` | `30000` | Gateway reading expiry (ms) |
 | `MIN_RSSI` | `-85` | Minimum accepted signal strength (dBm) |
 
-The asset is assigned to the gateway with the highest smoothed RSSI, provided it beats the current winner by `HYSTERESIS_DB` dBm. This prevents flickering when a tag sits near a room boundary.
+**Power Optimization** — Sleep cycles on BLE trackers with low transmission intervals for long-term battery operation.
+
+**Scalability** — Multiple base stations per floor; supports multi-room and multi-floor deployments.
 
 ---
 
-## Database
+## 🚀 Getting Started
 
-Asset state is persisted to `medtrack-db.json` — a plain JSON file. No external database is required. The file is read on startup and written on every mutation.
+### Prerequisites
 
-```json
-{
-  "assets": {
-    "A1B2": {
-      "tag_id": "A1B2",
-      "device_name": "Infusion Pump #1",
-      "device_type": "Infusion Pump",
-      "status": "Available",
-      "battery": 85,
-      "current_floor": "2F",
-      "current_room": "Room2",
-      "department": "ICU",
-      "last_seen": "2025-02-15T10:30:00Z"
-    }
-  },
-  "history": [],
-  "gw_registry": {
-    "Room1": { "floor": "1F" },
-    "Room2": { "floor": "2F" }
-  }
-}
+| Tool | Version |
+|------|---------|
+| Node.js | 18+ |
+| npm | 9+ |
+| Arduino IDE | 2.x |
+| ESP32 Arduino core | latest |
+| Adafruit nRF52 Arduino core | latest |
+
+### Backend
+```bash
+cd "Medtrack server/Medtrack-server-main/Medtrack-server-main"
+npm install
+npm start        # production
+npm run dev      # development (nodemon auto-reload)
+```
+Server starts on **http://localhost:3001** (REST) and **ws://localhost:3001** (WebSocket).
+
+### Frontend
+```bash
+cd Medtrack-main
+npm install
+npm run dev      # → http://localhost:5173
+npm run build    # production build
+```
+
+### Demo Login
+
+| Role | Username | Password |
+|------|----------|----------|
+| Biomedical Engineer | `biomed` | `biomed123` |
+| Clinical Staff | `nurse` | `nurse123` |
+
+---
+
+## 🔧 Hardware Setup
+
+### BLE Tag (nRF52840)
+Flash `Final_Tracker.ino` via Arduino IDE with the Adafruit nRF52 core. Set a unique `TAG_ID` per tag before flashing.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `TAG_ID` | `0xA1B2` | Unique 2-byte tag identifier |
+| `ADV_INTERVAL_MS` | `50` | BLE advertising interval (ms) |
+| `ADV_BURST_SEC` | `20` | Broadcast window duration (s) |
+| `SLEEP_SEC` | `5` | Sleep between bursts (s) |
+
+### Base Station (ESP32)
+Edit these values in `Final_BaseStation.ino` before flashing. Deploy one unit per room or coverage zone.
+
+```cpp
+const char* WIFI_SSID     = "YOUR_WIFI_SSID";
+const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* SERVER_URL    = "http://<SERVER_IP>:3001/api/tag";
+const String GATEWAY_ID   = "Room1";   // unique per station
+const String FLOOR        = "1F";
 ```
 
 ---
 
-## License
+## 📡 API Reference
 
-This project was developed as a capstone project. See individual source files for authorship details.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/tag` | Base station submits a tag detection |
+| `GET` | `/api/assets` | Returns all tracked assets |
+| `PUT` | `/api/assets/:tag_id` | Update asset metadata |
+| `GET` | `/api/assets/:tag_id/history` | Location history for an asset |
+| `DELETE` | `/api/assets/:tag_id` | Remove an asset |
+| `GET` | `/api/health` | Server health check |
 
+**WebSocket Events**
+
+| Event | Direction | Payload |
+|-------|-----------|---------|
+| `init` | Server → Client | Full asset list on connection |
+| `tag_update` | Server → Client | Updated asset object |
+| `tag_deleted` | Server → Client | `{ tag_id }` |
+
+---
+
+## 🎯 Use Cases
+
+MedTags can track any mobile hospital asset, including:
+- Wheelchairs and stretchers
+- IV / infusion pumps
+- Heart monitors and portable diagnostic devices
+- Beds and other movable equipment
+
+---
+
+## 🔮 Future Improvements
+
+- Interactive hospital floor map with live location overlay
+- Notification system for missing or inactive equipment
+- Search and filter tools for faster asset lookup
+- Full database integration for equipment history and logs
+- Enhanced hospital-themed UI/UX
+
+---
+
+## 👨‍💻 Team
+Thatcher Usciski
+Matthew Lovisa
+Gurveer Singh
+Antonio Montesano
+Samihan Karpe
