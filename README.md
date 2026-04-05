@@ -194,7 +194,7 @@ const String FLOOR        = "1F";
 
 ## 🎯 Use Cases
 
-MedTags can track any mobile hospital asset, including:
+MedTags can track any mobile hospital asset, including but not limited to:
 - Wheelchairs and stretchers
 - IV / infusion pumps
 - Heart monitors and portable diagnostic devices
@@ -202,15 +202,6 @@ MedTags can track any mobile hospital asset, including:
 
 ---
 
-## 🔮 Future Improvements
-
-- Interactive hospital floor map with live location overlay
-- Notification system for missing or inactive equipment
-- Search and filter tools for faster asset lookup
-- Full database integration for equipment history and logs
-- Enhanced hospital-themed UI/UX
-
----
 
 ## 👨‍💻 Team
 Thatcher Usciski
