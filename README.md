@@ -122,7 +122,7 @@ Displays real-time asset data over a persistent WebSocket connection, showing lo
 
 ### Backend
 ```bash
-cd "Medtrack server/Medtrack-server-main/Medtrack-server-main"
+cd "Medtrack server/Medtrack-server-main"
 npm install
 npm start        # production
 npm run dev      # development (nodemon auto-reload)
