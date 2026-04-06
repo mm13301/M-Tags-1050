@@ -204,8 +204,8 @@ MedTags can track any mobile hospital asset, including but not limited to:
 
 
 ## 👨‍💻 Team
-Thatcher Usciski
-Matthew Lovisa
-Gurveer Singh
-Antonio Montesano
-Samihan Karpe
+Thatcher Usciski,
+Matthew Lovisa,
+Gurveer Singh,
+Antonio Montesano,
+Samihan Karpe,
